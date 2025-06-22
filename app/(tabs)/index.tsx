@@ -5,7 +5,8 @@ import { TranslationInput } from '@/components/TranslationInput';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import { TifinghKeyboard } from '@/components/TifinghKeyboard';
 import { GlassCard } from '@/components/GlassCard';
-import { Keyboard, Zap, Camera } from 'lucide-react-native';
+import { Keyboard, Zap, Camera, Wifi, WifiOff, Cloud, Cpu } from 'lucide-react-native';
+import { useMode } from '../context/ModeContext';
 
 export default function TranslateScreen() {
   const [inputText, setInputText] = useState('');
@@ -14,6 +15,7 @@ export default function TranslateScreen() {
   const [toLanguage, setToLanguage] = useState('Tamazight (ⵜⴰⵎⴰⵣⵉⵖⵜ)');
   const [showTifinghKeyboard, setShowTifinghKeyboard] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
+  const { mode } = useMode();
 
   const handleSwapLanguages = () => {
     setFromLanguage(toLanguage);
@@ -26,19 +28,44 @@ export default function TranslateScreen() {
     if (!inputText.trim()) return;
     
     setIsTranslating(true);
-    
-    // Simulate AI translation delay
-    setTimeout(() => {
-      // Mock translation - in real app, this would call the Gemma-3 model
-      if (fromLanguage === 'English' && toLanguage.includes('Tamazight')) {
-        setOutputText('ⴰⵣⵓⵍ ⴰⴼⵍⵍⴰⵙ'); // Hello/Peace in Tamazight
-      } else if (fromLanguage.includes('Tamazight') && toLanguage === 'English') {
-        setOutputText('Hello, peace be with you');
-      } else {
-        setOutputText(`[Translated from ${fromLanguage} to ${toLanguage}]: ${inputText}`);
+
+    if (mode === 'online') {
+      // Online translation using Gemma-3 API
+      try {
+        // Simulate API call with realistic delay
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Mock translation - replace with actual API call
+        if (fromLanguage === 'English' && toLanguage.includes('Tamazight')) {
+          setOutputText('ⴰⵣⵓⵍ ⴰⴼⵍⵍⴰⵙ');
+        } else if (fromLanguage.includes('Tamazight') && toLanguage === 'English') {
+          setOutputText('Hello, peace be with you');
+        } else if (fromLanguage.includes('Arabic') && toLanguage.includes('Tamazight')) {
+          setOutputText('ⴰⵣⵓⵍ ⴰⴼⵍⵍⴰⵙ');
+        } else {
+          setOutputText(`[Online Translation from ${fromLanguage} to ${toLanguage}]: ${inputText}`);
+        }
+      } catch (error) {
+        console.error('API Translation Error:', error);
+        setOutputText('Error translating online. Please check your connection and try again.');
+      } finally {
+        setIsTranslating(false);
       }
-      setIsTranslating(false);
-    }, 1500);
+    } else {
+      // Offline translation (existing simulation)
+      setTimeout(() => {
+        if (fromLanguage === 'English' && toLanguage.includes('Tamazight')) {
+          setOutputText('ⴰⵣⵓⵍ ⴰⴼⵍⵍⴰⵙ');
+        } else if (fromLanguage.includes('Tamazight') && toLanguage === 'English') {
+          setOutputText('Hello, peace be with you');
+        } else if (fromLanguage.includes('Arabic') && toLanguage.includes('Tamazight')) {
+          setOutputText('ⴰⵣⵓⵍ ⴰⴼⵍⵍⴰⵙ');
+        } else {
+          setOutputText(`[Offline Translation from ${fromLanguage} to ${toLanguage}]: ${inputText}`);
+        }
+        setIsTranslating(false);
+      }, 1200);
+    }
   };
 
   const handleTifinghCharacter = (character: string) => {
@@ -56,6 +83,21 @@ export default function TranslateScreen() {
                 style={styles.headerImage}
                 resizeMode="contain"
               />
+              <View style={styles.modeIndicator}>
+                {mode === 'online' ? (
+                  <Cloud size={16} color="#10B981" strokeWidth={2} />
+                ) : (
+                  <Cpu size={16} color="#8B5CF6" strokeWidth={2} />
+                )}
+                <Text style={styles.modeText}>
+                  {mode === 'online' ? 'Online' : 'Offline'} Mode
+                </Text>
+                {mode === 'online' ? (
+                  <Wifi size={14} color="#10B981" strokeWidth={2} />
+                ) : (
+                  <WifiOff size={14} color="rgba(255, 255, 255, 0.6)" strokeWidth={2} />
+                )}
+              </View>
             </View>
 
             <LanguageSelector
@@ -83,7 +125,11 @@ export default function TranslateScreen() {
               </TouchableOpacity>
 
               <TouchableOpacity 
-                style={[styles.translateButton, isTranslating && styles.translating]}
+                style={[
+                  styles.translateButton, 
+                  isTranslating && styles.translating,
+                  mode === 'online' && styles.onlineButton
+                ]}
                 onPress={handleTranslate}
                 disabled={isTranslating || !inputText.trim()}
               >
@@ -106,7 +152,7 @@ export default function TranslateScreen() {
 
             {(outputText || isTranslating) && (
               <TranslationInput
-                value={isTranslating ? 'Translating with Gemma-3 AI...' : outputText}
+                value={isTranslating ? `Translating with ${mode === 'online' ? 'Gemma-3 API' : 'On-Device AI'}...` : outputText}
                 onChangeText={() => {}}
                 placeholder=""
                 language={toLanguage}
@@ -118,9 +164,15 @@ export default function TranslateScreen() {
             {outputText && (
               <GlassCard style={styles.aiInfo}>
                 <View style={styles.aiRow}>
-                  <Zap size={16} color="#10B981" strokeWidth={2} />
+                  {mode === 'online' ? (
+                    <Cloud size={16} color="#10B981" strokeWidth={2} />
+                  ) : (
+                    <Cpu size={16} color="#8B5CF6" strokeWidth={2} />
+                  )}
                   <Text style={styles.aiText}>
-                    Translated offline using Gemma-3 AI • Processing time: 1.2s
+                    {mode === 'online'
+                      ? 'Translated online using Gemma-3 API • Cloud processing'
+                      : 'Translated offline using On-Device AI • Processing time: 1.2s'}
                   </Text>
                 </View>
               </GlassCard>
@@ -151,6 +203,23 @@ const styles = StyleSheet.create({
   headerImage: {
     width: '80%',
     height: 200,
+  },
+  modeIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  modeText: {
+    color: 'rgba(255, 255, 255, 0.95)',
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 14,
   },
   controls: {
     flexDirection: 'row',
@@ -187,6 +256,9 @@ const styles = StyleSheet.create({
     gap: 8,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  onlineButton: {
+    backgroundColor: 'rgba(59, 130, 246, 0.8)',
   },
   translating: {
     backgroundColor: 'rgba(245, 158, 11, 0.8)',

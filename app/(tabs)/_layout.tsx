@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Languages, History, AlertTriangle, Building2 } from 'lucide-react-native';
+import { Languages, History, AlertTriangle, Building2, Settings } from 'lucide-react-native';
 import { View, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
@@ -77,6 +77,15 @@ export default function TabLayout() {
           title: 'Government',
           tabBarIcon: ({ size, color }) => (
             <Building2 size={size} color={color} strokeWidth={2} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: 'Settings',
+          tabBarIcon: ({ size, color }) => (
+            <Settings size={size} color={color} strokeWidth={2} />
           ),
         }}
       />
