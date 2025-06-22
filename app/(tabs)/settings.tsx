@@ -34,7 +34,11 @@ const CustomToggle: React.FC<CustomToggleProps> = ({ value, onValueChange }) => 
   }, [value, animatedValue]);
 
   return (
-    <TouchableOpacity onPress={onValueChange}>
+    <TouchableOpacity 
+      onPress={onValueChange}
+      style={styles.toggleContainer}
+      activeOpacity={0.7}
+    >
       <Animated.View style={[styles.switchTrack, trackAnimatedStyle]}>
         <Animated.View style={[styles.switchThumb, { transform: [{ translateX }] }]} />
       </Animated.View>
@@ -59,7 +63,11 @@ export default function SettingsScreen() {
           </View>
 
           <GlassCard style={styles.settingsCard}>
-            <View style={styles.settingRow}>
+            <TouchableOpacity 
+              style={styles.settingRow}
+              onPress={toggleMode}
+              activeOpacity={0.7}
+            >
               <View style={styles.settingTextContainer}>
                 <View style={styles.labelRow}>
                   <Text style={styles.settingLabel}>Translation Mode</Text>
@@ -79,9 +87,16 @@ export default function SettingsScreen() {
                     ? 'Online mode uses the Gemma-3 API for the highest quality translations with access to the latest language models.'
                     : 'Offline mode uses the on-device AI model and does not require an internet connection for complete privacy.'}
                 </Text>
+                <TouchableOpacity 
+                  style={styles.tapHint}
+                  onPress={toggleMode}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.tapHintText}>Tap anywhere to toggle</Text>
+                </TouchableOpacity>
               </View>
               <CustomToggle value={isOnline} onValueChange={toggleMode} />
-            </View>
+            </TouchableOpacity>
           </GlassCard>
 
           <GlassCard style={styles.infoCard}>
@@ -205,6 +220,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Inter-Regular',
     lineHeight: 20,
+    marginBottom: 8,
+  },
+  tapHint: {
+    alignSelf: 'flex-start',
+  },
+  tapHintText: {
+    color: 'rgba(16, 185, 129, 0.8)',
+    fontSize: 12,
+    fontFamily: 'Inter-Medium',
+    fontStyle: 'italic',
+  },
+  toggleContainer: {
+    padding: 8,
   },
   switchTrack: {
     width: 56,
