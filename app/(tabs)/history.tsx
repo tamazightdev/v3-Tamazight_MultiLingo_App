@@ -1,53 +1,42 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, ActivityIndicator } from 'react-native';
+import { useFocusEffect } from 'expo-router';
 import { GradientBackground } from '@/components/GradientBackground';
 import { GlassCard } from '@/components/GlassCard';
-import { Search, Star, Trash2, ArrowUpDown } from 'lucide-react-native';
-
-interface TranslationItem {
-  id: string;
-  sourceText: string;
-  translatedText: string;
-  fromLang: string;
-  toLang: string;
-  timestamp: Date;
-  isFavorite: boolean;
-}
-
-const SAMPLE_HISTORY: TranslationItem[] = [
-  {
-    id: '1',
-    sourceText: 'Hello, how are you?',
-    translatedText: 'ⴰⵣⵓⵍ, ⵎⴰⵏⵉⵎⴽ ⵜⵍⵍⵉⴷ?',
-    fromLang: 'English',
-    toLang: 'Tamazight',
-    timestamp: new Date('2024-01-15T10:30:00'),
-    isFavorite: true,
-  },
-  {
-    id: '2',
-    sourceText: 'مرحبا، كيف حالك؟',
-    translatedText: 'Hello, how are you?',
-    fromLang: 'Arabic',
-    toLang: 'English',
-    timestamp: new Date('2024-01-15T09:15:00'),
-    isFavorite: false,
-  },
-  {
-    id: '3',
-    sourceText: 'Où est la pharmacie?',
-    translatedText: 'Where is the pharmacy?',
-    fromLang: 'French',
-    toLang: 'English',
-    timestamp: new Date('2024-01-14T16:45:00'),
-    isFavorite: true,
-  },
-];
+import { Search, Star, Trash2, ArrowUpDown, Database, Cloud } from 'lucide-react-native';
+import { useMode } from '../context/ModeContext';
+import { databaseService, TranslationItem } from '../services/database';
 
 export default function HistoryScreen() {
   const [searchText, setSearchText] = useState('');
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
-  const [history, setHistory] = useState(SAMPLE_HISTORY);
+  const [history, setHistory] = useState<TranslationItem[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { mode } = useMode();
+
+  const fetchHistory = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await databaseService.getHistory(mode);
+      setHistory(data);
+    } catch (error) {
+      console.error('Failed to fetch history:', error);
+      setError(mode === 'online' 
+        ? 'Failed to fetch online history. Please check your connection.' 
+        : 'Failed to fetch local history.');
+      setHistory([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [mode]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchHistory();
+    }, [fetchHistory])
+  );
 
   const filteredHistory = history.filter(item => {
     const matchesSearch = searchText === '' || 
@@ -59,18 +48,27 @@ export default function HistoryScreen() {
     return matchesSearch && matchesFavorites;
   });
 
-  const toggleFavorite = (id: string) => {
-    setHistory(prev => prev.map(item => 
-      item.id === id ? { ...item, isFavorite: !item.isFavorite } : item
-    ));
+  const toggleFavorite = async (id: string) => {
+    try {
+      await databaseService.toggleFavorite(mode, id);
+      fetchHistory(); // Re-fetch to update the UI
+    } catch (error) {
+      console.error('Failed to toggle favorite:', error);
+    }
   };
 
-  const deleteItem = (id: string) => {
-    setHistory(prev => prev.filter(item => item.id !== id));
+  const deleteItem = async (id: string) => {
+    try {
+      await databaseService.deleteTranslation(mode, id);
+      fetchHistory(); // Re-fetch to update the UI
+    } catch (error) {
+      console.error('Failed to delete translation:', error);
+    }
   };
 
-  const formatTimestamp = (timestamp: Date) => {
-    return timestamp.toLocaleDateString() + ' ' + timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp);
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
   return (
@@ -79,7 +77,16 @@ export default function HistoryScreen() {
         <SafeAreaView style={styles.safeArea}>
           <View style={styles.header}>
             <Text style={styles.title}>Translation History</Text>
-            <Text style={styles.subtitle}>Your saved translations</Text>
+            <View style={styles.modeIndicator}>
+              {mode === 'online' ? (
+                <Cloud size={16} color="#10B981" strokeWidth={2} />
+              ) : (
+                <Database size={16} color="#8B5CF6" strokeWidth={2} />
+              )}
+              <Text style={styles.subtitle}>
+                {mode === 'online' ? 'Cloud Storage' : 'Local Storage'} • {history.length} translations
+              </Text>
+            </View>
           </View>
 
           <GlassCard style={styles.searchCard}>
@@ -96,11 +103,29 @@ export default function HistoryScreen() {
           </GlassCard>
 
           <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-            {filteredHistory.length === 0 ? (
+            {isLoading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#FFFFFF" />
+                <Text style={styles.loadingText}>
+                  Loading {mode === 'online' ? 'cloud' : 'local'} history...
+                </Text>
+              </View>
+            ) : error ? (
+              <GlassCard style={styles.errorCard}>
+                <Text style={styles.errorText}>⚠️ {error}</Text>
+                <TouchableOpacity style={styles.retryButton} onPress={fetchHistory}>
+                  <Text style={styles.retryText}>Retry</Text>
+                </TouchableOpacity>
+              </GlassCard>
+            ) : filteredHistory.length === 0 ? (
               <GlassCard style={styles.emptyCard}>
                 <Text style={styles.emptyText}>No translations found</Text>
                 <Text style={styles.emptySubtext}>
-                  {showFavoritesOnly ? 'No favorite translations yet' : 'Start translating to build your history'}
+                  {showFavoritesOnly 
+                    ? 'No favorite translations yet' 
+                    : history.length === 0
+                      ? 'Start translating to build your history'
+                      : 'No translations match your search'}
                 </Text>
               </GlassCard>
             ) : (
@@ -171,11 +196,16 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     textAlign: 'center',
   },
+  modeIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 8,
+  },
   subtitle: {
     fontSize: 16,
     fontFamily: 'Inter-Regular',
     color: 'rgba(255, 255, 255, 0.8)',
-    marginTop: 8,
   },
   searchCard: {
     marginHorizontal: 20,
@@ -209,6 +239,38 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
     paddingHorizontal: 20,
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  loadingText: {
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+    marginTop: 16,
+  },
+  errorCard: {
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  errorText: {
+    color: '#EF4444',
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  retryButton: {
+    backgroundColor: 'rgba(59, 130, 246, 0.8)',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 12,
+  },
+  retryText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontFamily: 'Inter-SemiBold',
   },
   historyItem: {
     marginBottom: 16,

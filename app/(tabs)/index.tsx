@@ -7,6 +7,7 @@ import { TifinghKeyboard } from '@/components/TifinghKeyboard';
 import { GlassCard } from '@/components/GlassCard';
 import { Keyboard, Zap, Camera, Wifi, WifiOff, Cloud, Cpu } from 'lucide-react-native';
 import { useMode } from '../context/ModeContext';
+import { databaseService } from '../services/database';
 
 export default function TranslateScreen() {
   const [inputText, setInputText] = useState('');
@@ -24,6 +25,21 @@ export default function TranslateScreen() {
     setOutputText(inputText);
   };
 
+  const saveTranslation = async (translatedText: string) => {
+    try {
+      const newTranslation = {
+        sourceText: inputText,
+        translatedText: translatedText,
+        fromLang: fromLanguage,
+        toLang: toLanguage,
+        isFavorite: false,
+      };
+      await databaseService.addTranslation(mode, newTranslation);
+    } catch (error) {
+      console.error('Failed to save translation:', error);
+    }
+  };
+
   const handleTranslate = async () => {
     if (!inputText.trim()) return;
     
@@ -36,15 +52,19 @@ export default function TranslateScreen() {
         await new Promise(resolve => setTimeout(resolve, 2000));
         
         // Mock translation - replace with actual API call
+        let translatedText = '';
         if (fromLanguage === 'English' && toLanguage.includes('Tamazight')) {
-          setOutputText('ⴰⵣⵓⵍ ⴰⴼⵍⵍⴰⵙ');
+          translatedText = 'ⴰⵣⵓⵍ ⴰⴼⵍⵍⴰⵙ';
         } else if (fromLanguage.includes('Tamazight') && toLanguage === 'English') {
-          setOutputText('Hello, peace be with you');
+          translatedText = 'Hello, peace be with you';
         } else if (fromLanguage.includes('Arabic') && toLanguage.includes('Tamazight')) {
-          setOutputText('ⴰⵣⵓⵍ ⴰⴼⵍⵍⴰⵙ');
+          translatedText = 'ⴰⵣⵓⵍ ⴰⴼⵍⵍⴰⵙ';
         } else {
-          setOutputText(`[Online Translation from ${fromLanguage} to ${toLanguage}]: ${inputText}`);
+          translatedText = `[Online Translation from ${fromLanguage} to ${toLanguage}]: ${inputText}`;
         }
+        
+        setOutputText(translatedText);
+        await saveTranslation(translatedText);
       } catch (error) {
         console.error('API Translation Error:', error);
         setOutputText('Error translating online. Please check your connection and try again.');
@@ -53,16 +73,20 @@ export default function TranslateScreen() {
       }
     } else {
       // Offline translation (existing simulation)
-      setTimeout(() => {
+      setTimeout(async () => {
+        let translatedText = '';
         if (fromLanguage === 'English' && toLanguage.includes('Tamazight')) {
-          setOutputText('ⴰⵣⵓⵍ ⴰⴼⵍⵍⴰⵙ');
+          translatedText = 'ⴰⵣⵓⵍ ⴰⴼⵍⵍⴰⵙ';
         } else if (fromLanguage.includes('Tamazight') && toLanguage === 'English') {
-          setOutputText('Hello, peace be with you');
+          translatedText = 'Hello, peace be with you';
         } else if (fromLanguage.includes('Arabic') && toLanguage.includes('Tamazight')) {
-          setOutputText('ⴰⵣⵓⵍ ⴰⴼⵍⵍⴰⵙ');
+          translatedText = 'ⴰⵣⵓⵍ ⴰⴼⵍⵍⴰⵙ';
         } else {
-          setOutputText(`[Offline Translation from ${fromLanguage} to ${toLanguage}]: ${inputText}`);
+          translatedText = `[Offline Translation from ${fromLanguage} to ${toLanguage}]: ${inputText}`;
         }
+        
+        setOutputText(translatedText);
+        await saveTranslation(translatedText);
         setIsTranslating(false);
       }, 1200);
     }
