@@ -14,7 +14,17 @@ config.resolver.extraNodeModules = {
   '@supabase/storage-js': path.resolve(__dirname, 'node_modules/@supabase/storage-js'),
   '@supabase/realtime-js': path.resolve(__dirname, 'node_modules/@supabase/realtime-js'),
   '@supabase/gotrue-js': path.resolve(__dirname, 'node_modules/@supabase/gotrue-js'),
+  '@supabase/supabase-js': path.resolve(__dirname, 'node_modules/@supabase/supabase-js'),
 };
+
+// Add Supabase packages to watchFolders to ensure Metro processes them correctly
+config.watchFolders = [
+  path.resolve(__dirname, 'node_modules/@supabase/postgrest-js'),
+  path.resolve(__dirname, 'node_modules/@supabase/storage-js'),
+  path.resolve(__dirname, 'node_modules/@supabase/realtime-js'),
+  path.resolve(__dirname, 'node_modules/@supabase/gotrue-js'),
+  path.resolve(__dirname, 'node_modules/@supabase/supabase-js'),
+];
 
 // Add transformer configuration to handle TypeScript files
 config.transformer = {
