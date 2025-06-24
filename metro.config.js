@@ -8,6 +8,12 @@ const config = getDefaultConfig(__dirname);
 // Add TypeScript extensions to the resolver
 config.resolver.sourceExts = ['jsx', 'js', 'ts', 'tsx', 'json'];
 
+// Add explicit node modules paths for better resolution
+config.resolver.nodeModulesPaths = [
+  path.resolve(__dirname, 'node_modules'),
+  path.resolve(__dirname, '../../node_modules'), // For pnpm workspace
+];
+
 // Add explicit module resolution for Supabase dependencies
 config.resolver.extraNodeModules = {
   '@supabase/postgrest-js': path.resolve(__dirname, 'node_modules/@supabase/postgrest-js'),
@@ -17,8 +23,9 @@ config.resolver.extraNodeModules = {
   '@supabase/supabase-js': path.resolve(__dirname, 'node_modules/@supabase/supabase-js'),
 };
 
-// Add Supabase packages to watchFolders to ensure Metro processes them correctly
+// Add root node_modules and Supabase packages to watchFolders
 config.watchFolders = [
+  path.resolve(__dirname, 'node_modules'),
   path.resolve(__dirname, 'node_modules/@supabase/postgrest-js'),
   path.resolve(__dirname, 'node_modules/@supabase/storage-js'),
   path.resolve(__dirname, 'node_modules/@supabase/realtime-js'),
