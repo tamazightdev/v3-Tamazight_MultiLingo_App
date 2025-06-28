@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Image, Alert } from 'react-native';
 import { GradientBackground } from '@/components/GradientBackground';
 import { TranslationInput } from '@/components/TranslationInput';
 import { LanguageSelector } from '@/components/LanguageSelector';
@@ -8,6 +8,8 @@ import { GlassCard } from '@/components/GlassCard';
 import { Keyboard, Zap, Camera, Wifi, WifiOff, Cloud, Cpu } from 'lucide-react-native';
 import { useMode } from '../context/ModeContext';
 import { databaseService } from '../services/database';
+import { translateWithGemini } from '../services/geminiService';
+import { getApiKey } from '../services/apiKeyManager';
 
 export default function TranslateScreen() {
   const [inputText, setInputText] = useState('');
@@ -40,55 +42,107 @@ export default function TranslateScreen() {
     }
   };
 
+  const simulateOfflineTranslation = async (text: string, from: string, to: string): Promise<string> => {
+    // Simulate processing time
+    await new Promise(resolve => setTimeout(resolve, 1200));
+    
+    // Simple mock translations for demonstration
+    const mockTranslations: Record<string, Record<string, string>> = {
+      'hello': {
+        'Tamazight (ⵜⴰⵎⴰⵣⵉⵖⵜ)': 'ⴰⵣⵓⵍ',
+        'Arabic (العربية)': 'مرحبا',
+        'French (Français)': 'Bonjour'
+      },
+      'thank you': {
+        'Tamazight (ⵜⴰⵎⴰⵣⵉⵖⵜ)': 'ⵜⴰⵏⵎⵎⵉⵔⵜ',
+        'Arabic (العربية)': 'شكرا',
+        'French (Français)': 'Merci'
+      },
+      'مرحبا': {
+        'Tamazight (ⵜⴰⵎⴰⵣⵉⵖⵜ)': 'ⴰⵣⵓⵍ',
+        'English': 'Hello',
+        'French (Français)': 'Bonjour'
+      },
+      'ⴰⵣⵓⵍ': {
+        'Arabic (العربية)': 'مرحبا',
+        'English': 'Hello',
+        'French (Français)': 'Bonjour'
+      }
+    };
+
+    const lowerText = text.toLowerCase().trim();
+    if (mockTranslations[lowerText] && mockTranslations[lowerText][to]) {
+      return mockTranslations[lowerText][to];
+    }
+
+    // Fallback mock translation
+    return `[Offline AI Translation from ${from} to ${to}]: ${text}`;
+  };
+
   const handleTranslate = async () => {
     if (!inputText.trim()) return;
     
     setIsTranslating(true);
+    setOutputText('');
 
-    if (mode === 'online') {
-      // Online translation using Gemma-3 API
-      try {
-        // Simulate API call with realistic delay
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        // Mock translation - replace with actual API call
-        let translatedText = '';
-        if (fromLanguage === 'English' && toLanguage.includes('Tamazight')) {
-          translatedText = 'ⴰⵣⵓⵍ ⴰⴼⵍⵍⴰⵙ';
-        } else if (fromLanguage.includes('Tamazight') && toLanguage === 'English') {
-          translatedText = 'Hello, peace be with you';
-        } else if (fromLanguage.includes('Arabic') && toLanguage.includes('Tamazight')) {
-          translatedText = 'ⴰⵣⵓⵍ ⴰⴼⵍⵍⴰⵙ';
-        } else {
-          translatedText = `[Online Translation from ${fromLanguage} to ${toLanguage}]: ${inputText}`;
+    try {
+      let translatedText = '';
+
+      if (mode === 'online') {
+        // Check if API key is configured
+        const apiKey = await getApiKey();
+        if (!apiKey) {
+          Alert.alert(
+            'API Key Required',
+            'Please go to Settings and enter your Google Gemini API key to use online mode.',
+            [
+              { text: 'Cancel', style: 'cancel' },
+              { text: 'Go to Settings', onPress: () => {
+                // Navigation to settings would be handled here
+                // For now, just show the alert
+              }}
+            ]
+          );
+          setIsTranslating(false);
+          return;
         }
+
+        // Use Gemini API for online translation
+        const result = await translateWithGemini({
+          text: inputText,
+          fromLanguage: fromLanguage,
+          toLanguage: toLanguage
+        });
         
-        setOutputText(translatedText);
-        await saveTranslation(translatedText);
-      } catch (error) {
-        console.error('API Translation Error:', error);
-        setOutputText('Error translating online. Please check your connection and try again.');
-      } finally {
-        setIsTranslating(false);
+        translatedText = result.translatedText;
+
+      } else {
+        // Use offline/mock translation
+        translatedText = await simulateOfflineTranslation(inputText, fromLanguage, toLanguage);
       }
-    } else {
-      // Offline translation (existing simulation)
-      setTimeout(async () => {
-        let translatedText = '';
-        if (fromLanguage === 'English' && toLanguage.includes('Tamazight')) {
-          translatedText = 'ⴰⵣⵓⵍ ⴰⴼⵍⵍⴰⵙ';
-        } else if (fromLanguage.includes('Tamazight') && toLanguage === 'English') {
-          translatedText = 'Hello, peace be with you';
-        } else if (fromLanguage.includes('Arabic') && toLanguage.includes('Tamazight')) {
-          translatedText = 'ⴰⵣⵓⵍ ⴰⴼⵍⵍⴰⵙ';
-        } else {
-          translatedText = `[Offline Translation from ${fromLanguage} to ${toLanguage}]: ${inputText}`;
-        }
-        
-        setOutputText(translatedText);
-        await saveTranslation(translatedText);
-        setIsTranslating(false);
-      }, 1200);
+      
+      setOutputText(translatedText);
+      await saveTranslation(translatedText);
+
+    } catch (error: any) {
+      console.error('Translation failed:', error);
+      
+      let errorMessage = 'An unexpected error occurred.';
+      
+      if (error.message.includes('API key')) {
+        errorMessage = 'API key issue. Please check your settings.';
+      } else if (error.message.includes('Network')) {
+        errorMessage = 'Network error. Please check your internet connection.';
+      } else if (error.message.includes('Rate limit')) {
+        errorMessage = 'Too many requests. Please wait a moment and try again.';
+      } else {
+        errorMessage = error.message || 'Translation failed.';
+      }
+      
+      Alert.alert('Translation Error', errorMessage);
+      setOutputText('Translation failed. Please try again.');
+    } finally {
+      setIsTranslating(false);
     }
   };
 
@@ -176,7 +230,7 @@ export default function TranslateScreen() {
 
             {(outputText || isTranslating) && (
               <TranslationInput
-                value={isTranslating ? `Translating with ${mode === 'online' ? 'Gemma-3 API' : 'On-Device AI'}...` : outputText}
+                value={isTranslating ? `Translating with ${mode === 'online' ? 'Google Gemini API' : 'On-Device AI'}...` : outputText}
                 onChangeText={() => {}}
                 placeholder=""
                 language={toLanguage}
@@ -195,7 +249,7 @@ export default function TranslateScreen() {
                   )}
                   <Text style={styles.aiText}>
                     {mode === 'online'
-                      ? 'Translated online using Gemma-3 API • Cloud processing'
+                      ? 'Translated online using Google Gemini API • Cloud processing'
                       : 'Translated offline using On-Device AI • Processing time: 1.2s'}
                   </Text>
                 </View>
