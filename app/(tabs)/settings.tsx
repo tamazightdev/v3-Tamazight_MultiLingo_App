@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Animated, TextInput, Alert, ActivityIndicator } from 'react-native';
 import { GradientBackground } from '@/components/GradientBackground';
 import { GlassCard } from '@/components/GlassCard';
-import { Settings, Wifi, WifiOff, Zap, Shield, Globe, KeyRound, Eye, EyeOff, CheckCircle } from 'lucide-react-native';
+import { Settings, Wifi, WifiOff, Zap, Shield, Globe, KeyRound, Eye, EyeOff, CircleCheck as CheckCircle } from 'lucide-react-native';
 import { useMode } from '../context/ModeContext';
 import { saveApiKey, getApiKey, removeApiKey } from '../services/apiKeyManager';
 import { validateApiKeyFormat, testApiKey } from '../services/geminiService';
