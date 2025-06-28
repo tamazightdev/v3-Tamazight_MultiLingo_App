@@ -1,15 +1,23 @@
 # Multi-Lingo Tamazight Edition - On Device AI Translation App
 
-A beautiful, production-ready mobile translation app built with Expo and React Native, featuring offline AI translation capabilities for Tamazight, pronounced "Tamazirt", (Berber) languages. The app provides seamless translation between Tamazight, Arabic, English and French with specialized features for emergency situations and government/parliamentary use.
+A beautiful, production-ready mobile translation app built with Expo and React Native, featuring offline AI translation capabilities and Google Gemini API integration for Tamazight, pronounced "Tamazirt", (Berber) languages. The app provides seamless translation between Tamazight, Arabic, English and French with specialized features for emergency situations and government/parliamentary use.
 
 ## 🌟 Features
 
 ### Core Translation Features
-- **Offline AI Translation**: Powered by Gemma-3 AI model for fast, offline translations
+- **Dual-Mode Translation**: Choose between offline AI and Google Gemini API for optimal flexibility
 - **Multi-Language Support**: Tamazight (ⵜⴰⵎⴰⵣⵉⵖⵜ), Arabic, French, and English
 - **Tifinagh Keyboard**: Built-in virtual keyboard for typing in Tifinagh script
 - **Voice Input & Output**: Speech-to-text input and text-to-speech output
 - **Real-time Translation**: Instant translation as you type
+
+### Google Gemini API Integration 🆕
+- **Professional Translation**: High-quality translations powered by Google's latest Gemini AI
+- **Secure API Key Management**: Encrypted storage using platform-specific secure storage
+- **Real-time Validation**: Automatic API key verification and testing
+- **Specialized Prompts**: Optimized prompts for Tamazight cultural context and accuracy
+- **Error Handling**: Comprehensive error handling with user-friendly messages
+- **Rate Limit Management**: Smart handling of API rate limits and quotas
 
 ### Database & Storage Features
 - **Dual-Mode Database System**: Choose between local privacy or cloud convenience
@@ -30,6 +38,99 @@ A beautiful, production-ready mobile translation app built with Expo and React N
 - **Haptic Feedback**: Tactile responses for better user interaction (mobile only)
 - **Responsive Design**: Optimized for both mobile and web platforms
 - **Accessibility**: Screen reader support and high contrast ratios
+
+## 🤖 Translation Modes
+
+### Online Mode - Google Gemini API
+**High-Quality AI Translation**
+- **Technology**: Google Gemini 1.5 Flash model
+- **Accuracy**: Professional-grade translations with cultural context
+- **Languages**: Optimized for Tamazight, Arabic, French, and English
+- **Requirements**: Internet connection and Google AI API key
+- **Features**:
+  - Specialized prompts for Tamazight cultural accuracy
+  - Emergency and medical terminology optimization
+  - Real-time API key validation
+  - Comprehensive error handling
+  - Rate limit management
+
+**Getting Your API Key:**
+1. Visit [ai.google.dev](https://ai.google.dev)
+2. Sign in with your Google account
+3. Create a new project or select existing one
+4. Enable the Generative Language API
+5. Generate an API key
+6. Copy the key (starts with "AIza...")
+
+### Offline Mode - On-Device AI
+**Privacy-First Translation**
+- **Technology**: On-device AI processing
+- **Privacy**: Complete data privacy, no internet required
+- **Performance**: Fast response times with local processing
+- **Storage**: All data stays on your device
+- **Features**:
+  - Mock translations for development
+  - Instant response times
+  - No API costs
+  - Works without internet
+
+## 🔧 Setup & Configuration
+
+### Quick Start
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd tamazight-translate
+
+# Install dependencies
+npm install
+# or
+pnpm install
+
+# Start the development server
+npm run dev
+# or
+pnpm dev
+```
+
+### Google Gemini API Setup
+
+#### 1. Get Your API Key
+1. **Visit Google AI Studio**: Go to [ai.google.dev](https://ai.google.dev)
+2. **Sign In**: Use your Google account
+3. **Create Project**: Create a new project or select existing
+4. **Enable API**: Enable the Generative Language API
+5. **Generate Key**: Create an API key in the credentials section
+6. **Copy Key**: Save your API key (format: `AIza...`)
+
+#### 2. Configure in App
+1. **Open Settings**: Launch the app and go to Settings tab
+2. **Enter API Key**: Paste your API key in the "Google Gemini API Key" section
+3. **Verify**: The app will automatically test and verify your key
+4. **Save**: Once verified, the key is securely stored on your device
+5. **Switch Mode**: Toggle to "Online Mode" to use Gemini API
+
+#### 3. Start Translating
+- **Online Mode**: High-quality translations using Google Gemini
+- **Offline Mode**: Privacy-focused local translations
+- **Seamless Switching**: Change modes anytime in settings
+
+### API Key Management
+
+#### Security Features
+- **Secure Storage**: Keys stored using platform-specific encryption
+  - **iOS/Android**: Keychain/Keystore secure storage
+  - **Web**: Encrypted localStorage with secure handling
+- **Local Only**: API keys never leave your device
+- **Easy Removal**: Remove stored keys anytime
+- **Format Validation**: Automatic validation of key format
+
+#### Visual Indicators
+- **Status Display**: Real-time API key status (✓ verified, ✗ invalid)
+- **Mode Indicators**: Clear visual indication of current translation mode
+- **Loading States**: Progress indicators during key verification
+- **Error Messages**: Helpful error messages with troubleshooting tips
 
 ## 🗄️ Database Architecture
 
@@ -87,24 +188,7 @@ interface TranslationItem {
 - Node.js 18+ 
 - npm or pnpm package manager
 - Expo CLI (optional, for additional development features)
-
-### Quick Start
-
-```bash
-# Clone the repository
-git clone <repository-url>
-cd tamazight-translate
-
-# Install dependencies
-npm install
-# or
-pnpm install
-
-# Start the development server
-npm run dev
-# or
-pnpm dev
-```
+- Google AI API key (for online mode)
 
 ### Development Server Options
 
@@ -204,21 +288,22 @@ The app uses a tab-based navigation structure with five main sections:
 #### 1. **Translate Tab** (Home)
 - **Purpose**: Main translation interface with dual-mode support
 - **Features**:
-  - Mode indicator (Online/Offline) with visual status
-  - Language selector with swap functionality
-  - Text input with Tifinagh keyboard support
-  - Voice input/output controls
-  - Camera translation button
-  - Real-time AI translation
-  - Automatic history saving to selected database mode
+  - **Mode Selection**: Toggle between Online (Gemini API) and Offline modes
+  - **API Key Integration**: Seamless integration with Google Gemini API
+  - **Language Selector**: Support for Tamazight, Arabic, French, and English
+  - **Text Input**: Advanced text input with Tifinagh keyboard support
+  - **Voice Controls**: Voice input/output with speech synthesis
+  - **Real-time Translation**: Instant AI-powered translation
+  - **Smart Error Handling**: User-friendly error messages and recovery
 
 **User Flow**:
-1. Choose storage mode (offline for privacy, online for sync)
-2. Select source and target languages
-3. Input text via typing, voice, or camera
-4. Tap translate for AI-powered translation
-5. Translation automatically saves to chosen database
-6. Use voice output to hear pronunciation
+1. **Configure API Key**: (First time) Go to Settings and add Gemini API key
+2. **Choose Mode**: Select Online (Gemini) or Offline mode
+3. **Select Languages**: Choose source and target languages
+4. **Input Text**: Type, speak, or use camera for text input
+5. **Translate**: Tap translate for AI-powered translation
+6. **Auto-Save**: Translation automatically saves to chosen database
+7. **Voice Output**: Hear pronunciation with text-to-speech
 
 #### 2. **History Tab**
 - **Purpose**: Manage translation history with dual-mode support
@@ -268,32 +353,39 @@ The app uses a tab-based navigation structure with five main sections:
 3. Browse context-specific phrases
 4. Learn about linguistic rights in Morocco
 
-#### 5. **Settings Tab**
-- **Purpose**: Configure app preferences and database mode
+#### 5. **Settings Tab** 🆕
+- **Purpose**: Configure app preferences, database mode, and API keys
 - **Features**:
+  - **Google Gemini API Configuration**: Secure API key management
+  - **API Key Validation**: Real-time key testing and verification
   - **Database Mode Toggle**: Switch between offline and online storage
-  - **Visual Mode Indicators**: Clear indication of current storage mode
+  - **Visual Indicators**: Clear indication of current modes and status
+  - **Security Management**: View, update, or remove stored API keys
   - **Mode Comparison**: Side-by-side feature comparison
-  - **Privacy Information**: Explanation of data handling in each mode
 
 **User Flow**:
-1. Toggle between offline (privacy) and online (sync) modes
-2. View real-time mode indicators throughout the app
-3. Understand the benefits of each storage mode
-4. Configure other app preferences
+1. **API Key Setup**: Enter and verify Google Gemini API key
+2. **Mode Selection**: Toggle between offline (privacy) and online (accuracy) modes
+3. **Key Management**: View status, update, or remove API keys
+4. **Security Review**: Understand data handling in each mode
+5. **Feature Comparison**: Compare offline vs online capabilities
 
-### Database Mode Switching
+### Google Gemini API Integration Flow
 
-**Seamless Mode Switching:**
-- **Instant Updates**: UI immediately reflects the new mode
-- **Independent Data**: Each mode maintains its own data
-- **No Data Loss**: Switching modes doesn't affect existing data
-- **Visual Feedback**: Icons and text update throughout the app
+**First-Time Setup:**
+1. **Get API Key**: Visit ai.google.dev and create API key
+2. **Open Settings**: Navigate to Settings tab in the app
+3. **Enter Key**: Paste API key in the secure input field
+4. **Automatic Validation**: App tests key format and connectivity
+5. **Secure Storage**: Key is encrypted and stored locally
+6. **Mode Activation**: Switch to Online mode to use Gemini API
 
-**Mode Indicators Throughout App:**
-- **Settings**: Toggle with animated switch and mode descriptions
-- **Translate**: Header shows current mode with appropriate icon
-- **History**: Shows storage type and translation count
+**Daily Usage:**
+1. **Automatic Detection**: App checks for saved API key
+2. **Mode Indicator**: Visual indication of Online/Offline status
+3. **Seamless Translation**: High-quality translations via Gemini API
+4. **Error Handling**: Smart error recovery and user guidance
+5. **Performance Monitoring**: Real-time status and error reporting
 
 ## 🛠 Technical Architecture
 
@@ -303,7 +395,15 @@ The app uses a tab-based navigation structure with five main sections:
 - **Expo Router 4.0.17**: File-based routing system
 - **TypeScript**: Type-safe development
 
-### Database Technologies
+### AI Integration
+- **Google Gemini API**: Professional translation service
+- **Gemini 1.5 Flash**: Latest model for fast, accurate translations
+- **Custom Prompts**: Specialized prompts for Tamazight cultural context
+- **Safety Settings**: Content filtering and safety controls
+- **Error Recovery**: Comprehensive error handling and retry logic
+
+### Security & Storage
+- **Expo Secure Store**: Platform-specific secure storage for API keys
 - **Better-SQLite3**: High-performance SQLite for mobile platforms
 - **Supabase**: PostgreSQL cloud database with real-time capabilities
 - **Edge Functions**: Deno-based serverless API for cloud operations
@@ -317,13 +417,7 @@ The app uses a tab-based navigation structure with five main sections:
 ### Core Features
 - **Expo Speech**: Text-to-speech functionality
 - **Expo Camera**: OCR and image translation
-- **Expo Haptics**: Tactile feedback (mobile only)
 - **React Native URL Polyfill**: Supabase compatibility
-
-### AI Integration
-- **Gemma-3 Model**: Offline translation processing
-- **Local Processing**: No internet required for translations
-- **Fast Performance**: Optimized for mobile devices
 
 ## 🌍 Supported Languages
 
@@ -339,8 +433,16 @@ The app uses a tab-based navigation structure with five main sections:
 - **Voice Support**: Text-to-speech for all languages
 - **Cultural Context**: Phrases adapted for Moroccan context
 - **Native Audio**: High-quality Tamazight pronunciation for emergency phrases
+- **Gemini Optimization**: Specialized prompts for cultural accuracy
 
 ## 🔒 Privacy & Security
+
+### API Key Security
+- ✅ **Secure Storage**: Platform-specific encryption (Keychain/Keystore)
+- ✅ **Local Only**: API keys never transmitted or shared
+- ✅ **Format Validation**: Automatic validation of key format
+- ✅ **Easy Management**: View, update, or remove keys anytime
+- ✅ **Real-time Testing**: Automatic verification of key validity
 
 ### Offline Mode Security
 - ✅ **Complete Privacy**: No data leaves your device
@@ -351,9 +453,9 @@ The app uses a tab-based navigation structure with five main sections:
 
 ### Online Mode Security
 - ✅ **HTTPS Encryption**: All communications encrypted in transit
+- ✅ **API Security**: Secure Google Gemini API integration
 - ✅ **Row Level Security**: Database-level access control
 - ✅ **CORS Protection**: Proper cross-origin request handling
-- ✅ **API Security**: Secure edge function implementation
 - ✅ **Data Sovereignty**: Choose your data location
 
 ### Data Handling Transparency
@@ -362,6 +464,7 @@ The app uses a tab-based navigation structure with five main sections:
 │   Data Type     │  Offline Mode   │   Online Mode   │
 ├─────────────────┼─────────────────┼─────────────────┤
 │ Translations    │ Local Device    │ Supabase Cloud  │
+│ API Keys        │ Secure Storage  │ Secure Storage  │
 │ Voice Input     │ Processed Local │ Processed Local │
 │ User Settings   │ Local Device    │ Local Device    │
 │ App Analytics   │ None Collected  │ None Collected  │
@@ -369,6 +472,13 @@ The app uses a tab-based navigation structure with five main sections:
 ```
 
 ## 📊 Performance Metrics
+
+### Google Gemini API Performance
+- **Response Time**: ~500-2000ms (depending on text length and network)
+- **Accuracy**: Professional-grade translation quality
+- **Rate Limits**: Managed automatically with user-friendly error handling
+- **Cost**: Pay-per-use pricing (free tier available)
+- **Availability**: 99.9% uptime with global distribution
 
 ### Offline Mode Performance
 - **Web localStorage**: ~1ms access time
@@ -410,19 +520,19 @@ supabase functions logs translation-history  # View function logs
 Create a `.env` file in the root directory:
 
 ```env
-# Required for online mode only
+# Required for online database mode only
 EXPO_PUBLIC_SUPABASE_URL="https://your-project-id.supabase.co"
 EXPO_PUBLIC_SUPABASE_ANON_KEY="your-anon-key-here"
 
-# Optional: Gemma-3 API Configuration
-EXPO_PUBLIC_GEMMA_API_KEY="your-gemma-api-key"
+# Note: Google Gemini API keys are managed through the app's Settings
+# and stored securely on the device, not in environment variables
 ```
 
 ### Platform-Specific Features
 The app automatically detects the platform and enables/disables features:
 
-- **Web**: Full functionality with localStorage, no haptics
-- **iOS/Android**: Complete feature set including haptics and SQLite
+- **Web**: Full functionality with localStorage, no haptics, secure API key storage
+- **iOS/Android**: Complete feature set including haptics, SQLite, and Keychain storage
 - **Responsive**: Adapts to different screen sizes and orientations
 
 ## 🚀 Deployment
@@ -451,6 +561,40 @@ eas build --platform all
 ```
 
 ## 🐛 Troubleshooting
+
+### Google Gemini API Issues
+
+#### "API Key Required" Error
+**Symptoms**: Error when trying to use online mode
+**Solution**:
+1. Go to Settings tab
+2. Enter your Google Gemini API key
+3. Wait for verification (green checkmark)
+4. Switch to Online mode
+
+#### "Invalid API Key" Error
+**Symptoms**: Red X next to API key status
+**Solution**:
+1. Verify key format (should start with "AIza")
+2. Check key permissions in Google AI Studio
+3. Ensure Generative Language API is enabled
+4. Try generating a new API key
+
+#### "Rate Limit Exceeded" Error
+**Symptoms**: Translation fails with rate limit message
+**Solution**:
+1. Wait a few minutes before trying again
+2. Check your API quota in Google AI Studio
+3. Consider upgrading your API plan
+4. Switch to Offline mode temporarily
+
+#### Network/Connection Errors
+**Symptoms**: "Network error" or timeout messages
+**Solution**:
+1. Check internet connection
+2. Try switching to Offline mode
+3. Restart the app
+4. Check if Google AI services are accessible
 
 ### Database Issues
 
@@ -488,10 +632,11 @@ supabase functions logs translation-history --follow
 - Ensure project is not paused in Supabase dashboard
 
 ### Performance Issues
-**Slow translation history loading:**
-- Check network connection (online mode)
-- Clear app data and restart (offline mode)
-- Verify database indexes are created
+**Slow translation with Gemini API:**
+- Check internet connection speed
+- Verify API key is valid
+- Try shorter text inputs
+- Check Google AI service status
 
 **High memory usage:**
 - Limit translation history size
@@ -499,6 +644,13 @@ supabase functions logs translation-history --follow
 - Restart app if memory usage is excessive
 
 ## 🔮 Future Enhancements
+
+### Planned Google Gemini Features
+1. **Advanced Models**: Integration with Gemini Pro for complex translations
+2. **Batch Translation**: Translate multiple texts simultaneously
+3. **Context Memory**: Maintain conversation context across translations
+4. **Custom Fine-tuning**: Train models on Tamazight-specific datasets
+5. **Voice Integration**: Direct voice-to-voice translation via Gemini
 
 ### Planned Database Features
 1. **Data Synchronization**: Sync between offline and online modes
@@ -525,9 +677,11 @@ supabase functions logs translation-history --follow
 ### Development Guidelines
 - Follow TypeScript best practices
 - Test both offline and online modes
+- Test Google Gemini API integration thoroughly
 - Ensure cross-platform compatibility
 - Maintain database schema consistency
-- Document any new database features
+- Document any new API features
+- Handle API errors gracefully
 
 ## 📄 License
 
@@ -535,6 +689,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 🙏 Acknowledgments
 
+- **Google AI Team**: For the powerful Gemini API and excellent documentation
 - **Tamazight Language Community**: For cultural and linguistic guidance
 - **Expo Team**: For the excellent development framework
 - **Supabase Team**: For the powerful backend-as-a-service platform
@@ -546,6 +701,12 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 For support, email support@tamazighttranslate.com or create an issue in the repository.
 
+### Google Gemini API Support
+- **API Issues**: Check [Google AI documentation](https://ai.google.dev/docs)
+- **Key Management**: Review secure storage implementation
+- **Rate Limits**: Monitor usage in Google AI Studio
+- **Performance**: Check network connectivity and API status
+
 ### Database-Specific Support
 - **Offline Mode Issues**: Check browser console or device logs
 - **Online Mode Issues**: Review Supabase dashboard and function logs
@@ -555,4 +716,4 @@ For support, email support@tamazighttranslate.com or create an issue in the repo
 ---
 
 **TamazightTranslate** - Bridging languages, preserving culture, empowering communication.
-*Now with dual-mode database architecture for ultimate flexibility and privacy.*
+*Now with Google Gemini AI integration for professional-grade translations.*
