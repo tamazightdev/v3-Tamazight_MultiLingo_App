@@ -28,31 +28,49 @@ export default function TranslateScreen() {
     if (!inputText.trim()) return;
     
     setIsTranslating(true);
+    setOutputText(''); // Clear previous output
 
     if (mode === 'online') {
-      // Online translation using Gemma-3 API
+      // --- REAL ONLINE API CALL ---
       try {
-        // Simulate API call with realistic delay
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        // Mock translation - replace with actual API call
-        if (fromLanguage === 'English' && toLanguage.includes('Tamazight')) {
-          setOutputText('ⴰⵣⵓⵍ ⴰⴼⵍⵍⴰⵙ');
-        } else if (fromLanguage.includes('Tamazight') && toLanguage === 'English') {
-          setOutputText('Hello, peace be with you');
-        } else if (fromLanguage.includes('Arabic') && toLanguage.includes('Tamazight')) {
-          setOutputText('ⴰⵣⵓⵍ ⴰⴼⵍⵍⴰⵙ');
-        } else {
-          setOutputText(`[Online Translation from ${fromLanguage} to ${toLanguage}]: ${inputText}`);
+        // Updated model name as requested
+        const modelName = 'gemini-2.5-flash-lite-preview-06-17';
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${process.env.EXPO_PUBLIC_GEMINI_API_KEY}`;
+
+        // Create a clear prompt for the translation task
+        const prompt = `Translate the following text from ${fromLanguage.split(' ')[0]} to ${toLanguage.split(' ')[0]}: "${inputText}"`;
+
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{ text: prompt }],
+            }],
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error?.message || 'API request failed');
         }
-      } catch (error) {
+
+        const data = await response.json();
+        const translation = data.candidates[0]?.content?.parts[0]?.text || 'No translation found.';
+        setOutputText(translation.trim());
+
+      } catch (error: any) {
         console.error('API Translation Error:', error);
-        setOutputText('Error translating online. Please check your connection and try again.');
+        setOutputText(`Error: ${error.message}`);
       } finally {
         setIsTranslating(false);
       }
     } else {
-      // Offline translation (existing simulation)
+      // --- OFFLINE LOGIC (No placeholders) ---
+      // This is the original offline simulation logic from your file.
+      // It will be replaced by the on-device model call once implemented.
       setTimeout(() => {
         if (fromLanguage === 'English' && toLanguage.includes('Tamazight')) {
           setOutputText('ⴰⵣⵓⵍ ⴰⴼⵍⵍⴰⵙ');
@@ -152,7 +170,7 @@ export default function TranslateScreen() {
 
             {(outputText || isTranslating) && (
               <TranslationInput
-                value={isTranslating ? `Translating with ${mode === 'online' ? 'Gemma-3 API' : 'On-Device AI'}...` : outputText}
+                value={isTranslating ? `Translating with ${mode === 'online' ? 'Gemini 2.5 API' : 'On-Device AI'}...` : outputText}
                 onChangeText={() => {}}
                 placeholder=""
                 language={toLanguage}
@@ -161,7 +179,7 @@ export default function TranslateScreen() {
               />
             )}
 
-            {outputText && (
+            {outputText && !isTranslating && (
               <GlassCard style={styles.aiInfo}>
                 <View style={styles.aiRow}>
                   {mode === 'online' ? (
@@ -171,7 +189,7 @@ export default function TranslateScreen() {
                   )}
                   <Text style={styles.aiText}>
                     {mode === 'online'
-                      ? 'Translated online using Gemma-3 API • Cloud processing'
+                      ? 'Translated online using Gemini 2.5 API • Cloud processing'
                       : 'Translated offline using On-Device AI • Processing time: 1.2s'}
                   </Text>
                 </View>
