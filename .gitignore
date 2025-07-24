@@ -33,3 +33,7 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# SpecStory AI artifacts (see README for details)
+.specstory
+.specstory/cursor_rules_backups

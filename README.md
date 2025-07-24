@@ -295,3 +295,24 @@ For support, email support@tamazighttranslate.com or create an issue in the repo
 ---
 
 **TamazightTranslate** - Bridging languages, preserving culture, empowering communication.
+
+## 📝 SpecStory Artifacts Directory Best Practices
+
+This project uses the SpecStory extension to capture AI coding session history and Cursor composer artifacts. To ensure best practices and a clean workflow, please follow these recommendations:
+
+### Version Control
+- By default, `.specstory` and `.specstory/cursor_rules_backups` are excluded from version control (see `.gitignore`).
+- If you wish to keep a history of your AI interactions, you may remove `.specstory` from `.gitignore`.
+- If you already version `.cursor/rules`, you can safely exclude `.specstory/cursor_rules_backups`.
+
+### Searching Your Codebase
+- To avoid cluttering search results with AI history, exclude `.specstory/*` in your code editor's search settings.
+  - In Cursor: Open Find in Files (Cmd/Ctrl + Shift + F), add `.specstory/*` to the "files to exclude" section.
+
+### SpecStory Auto-Save
+- Auto-save is enabled by default. You can control this in Cursor settings:
+  1. Open Cursor → Settings → VS Code Settings (Cmd/Ctrl + ,)
+  2. Search for "SpecStory"
+  3. Adjust the "Auto Save" setting as needed
+
+For more details, see `.specstory/.what-is-this.md`.
