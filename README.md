@@ -288,10 +288,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - **Google Fonts**: For the beautiful Inter font family
 - **Lucide Icons**: For the comprehensive icon library
 
-## 📞 Support
-
-For support, email support@tamazighttranslate.com or create an issue in the repository.
-
 ---
 
 **TamazightTranslate** - Bridging languages, preserving culture, empowering communication.
